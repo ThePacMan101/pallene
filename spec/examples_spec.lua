@@ -7,12 +7,14 @@ local benchlib = require "benchmarks.benchlib"
 local util = require "pallene.util"
 
 local function assert_example(example, expected_output)
-    local plnfile = util.shell_quote("examples/"..example.."/"..example..".pln")
-    local ok, err = util.execute("pallenec "..plnfile)
+    local dir = util.shell_quote("examples/"..example)
+
+    local plnfile = util.shell_quote(example..".pln")
+    local ok, err = util.execute(string.format("cd %s && pallenec %s", dir, plnfile))
     assert(ok, err)
 
-    local luafile = util.shell_quote("examples/"..example.."/main.lua")
-    local ok, err, output, _ = util.outputs_of_execute(benchlib.PALLENE_LUA.." "..luafile)
+    local ok, err, output, _ = util.outputs_of_execute(
+        string.format("cd %s && %s main.lua", dir, benchlib.PALLENE_LUA))
     assert(ok, err)
     assert.are.same(expected_output, output)
 end
